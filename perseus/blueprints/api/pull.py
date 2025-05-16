@@ -62,14 +62,21 @@ def get_latest_apks(version):
     return _pull_version(version)
 
 
-@pull_bp.route('/api/v1/pull/single/<apk_name>', methods=['GET'])
-def get_specific_latest_apk(apk_name):
-    apk_entry = db.get_latest_apk_by_name(apk_name + '.apk')
-    if not apk_entry:
-        return jsonify({"error": f"No uploaded APK found with the name {apk_name}"})
+@pull_bp.route('/api/v1/pull/<version>/<app_name>', methods=['GET'])
+def get_specific_apk(version, app_name):
+    if version != "latest":
+        # Fetch hash for app_name in the specific version
+        apk_hash = db.get_apk_hash_for_version(app_name, version)
+        if not apk_hash:
+            return jsonify({"error": f"No APK found for {app_name} in version {version}"}), 404
+    else:
+        # Fetch latest hash for app_name
+        apk_hash = db.get_latest_apk_hash(app_name)
+        if not apk_hash:
+            return jsonify({"error": f"No latest APK found for {app_name}"}), 404
 
-    apk_path = f"{params.repository}/{apk_name}/{apk_entry['hash']}.apk"
-    if not os.path.exists(apk_path):
-        return jsonify({"error": f"File not found: {apk_path}"}), 404
+    apk_path = f"{params.repository}/{app_name}/{apk_hash}.apk"
+    if not os.path.isfile(apk_path):
+        return jsonify({"error": "APK file not found on server"}), 404
 
-    return send_file(apk_path, as_attachment=True, download_name=apk_name + '.apk')
+    return send_file(apk_path, as_attachment=True, download_name=f"{app_name}.apk")

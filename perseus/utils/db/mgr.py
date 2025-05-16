@@ -76,17 +76,28 @@ class DatabaseManager:
             'timestamp': row[3]
         } for row in rows]
 
-    def get_latest_apk_by_name(self, apk_name):
+    def get_apk_hash_for_version(self, apk_name, version):
         with self._connect() as conn:
-            cursor = conn.execute('''
+            cursor = conn.execute("""
+                SELECT av.hash FROM apk_versions av
+                JOIN version_apks va ON av.id = va.apk_id
+                JOIN version_groups vg ON vg.id = va.version_id
+                WHERE av.filename = ? AND vg.version = ?
+                LIMIT 1
+            """, (apk_name + '.apk', version))
+            row = cursor.fetchone()
+            return row['hash'] if row else None
+
+    def get_latest_apk_hash(self, apk_name):
+        with self._connect() as conn:
+            cursor = conn.execute("""
                 SELECT hash FROM apk_versions
                 WHERE filename = ?
-                ORDER BY timestamp DESC LIMIT 1
-            ''', (apk_name,))
+                ORDER BY timestamp DESC
+                LIMIT 1
+            """, (apk_name + '.apk',))
             row = cursor.fetchone()
-            if row:
-                return {"hash": row[0]}
-            return None
+            return row[0] if row else None
 
     def freeze_version(self, version):
         with self._connect() as conn:
