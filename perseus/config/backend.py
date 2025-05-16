@@ -1,7 +1,6 @@
 import configparser
 import os.path
 from pathlib import Path
-from xml.sax import default_parser_list
 
 
 class Parameters:

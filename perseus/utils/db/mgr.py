@@ -76,6 +76,18 @@ class DatabaseManager:
             'timestamp': row[3]
         } for row in rows]
 
+    def get_latest_apk_by_name(self, apk_name):
+        with self._connect() as conn:
+            cursor = conn.execute('''
+                SELECT hash FROM apk_versions
+                WHERE filename = ?
+                ORDER BY timestamp DESC LIMIT 1
+            ''', (apk_name,))
+            row = cursor.fetchone()
+            if row:
+                return {"hash": row[0]}
+            return None
+
     def freeze_version(self, version):
         with self._connect() as conn:
             # Create version group if it doesn't exist
