@@ -1,5 +1,4 @@
 from flask import Flask
-from threading import Thread
 
 from perseus.blueprints.api.default import default_bp
 from perseus.blueprints.api.pull import pull_bp
@@ -19,5 +18,4 @@ class Perseus:
         self._app.register_blueprint(list_bp)
 
     def run(self):
-        app = Thread(target=self._app.run(params.ip, params.port))
-        app.start()
+        self._app.run(params.ip, params.port)
