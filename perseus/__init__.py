@@ -1,5 +1,5 @@
 from perseus.app import Perseus
 
-app = Perseus()
+flask_app = Perseus()
 
-app.run()
+app = flask_app.get_app()

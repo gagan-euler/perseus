@@ -19,3 +19,6 @@ class Perseus:
 
     def run(self):
         self._app.run(params.ip, params.port)
+
+    def get_app(self):
+        return self._app
