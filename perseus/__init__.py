@@ -1,5 +1,5 @@
 from perseus.app import Perseus
 
-app = Perseus()._app
+app = Perseus()
 
-# app.run()
+app.run()
